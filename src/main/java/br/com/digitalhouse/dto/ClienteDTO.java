@@ -1,8 +1,6 @@
 package br.com.digitalhouse.dto;
 
-import java.time.LocalDate;
 import java.util.List;
-
 import br.com.digitalhouse.model.Endereco;
 import br.com.digitalhouse.model.Telefone;
 import lombok.Data;
@@ -18,8 +16,6 @@ public class ClienteDTO {
 	
 	private List<Telefone> telefones;
 	
-	private LocalDate dataNasc;	
-	
 	private String cpf;	
 	
 	private String rg;	
@@ -27,5 +23,7 @@ public class ClienteDTO {
 	private String email;
 	
 	private Endereco endereco;
+	
+	private ImagemDTO foto;
 
 }

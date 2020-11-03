@@ -7,6 +7,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import br.com.digitalhouse.model.Endereco;
+import br.com.digitalhouse.model.Imagem;
 import br.com.digitalhouse.model.Telefone;
 import lombok.Data;
 
@@ -22,13 +23,15 @@ public class ClienteRequest {
 	private List<Telefone> telefones;
 	
 	@NotNull
-	private String cpf;	
+	private String cpf;		
 	
 	@NotBlank
-	private String rg;
+	private String rg;	
 	
 	@Email
 	private String email;
 	
 	private Endereco endereco;
+	
+	private Imagem foto;
 }

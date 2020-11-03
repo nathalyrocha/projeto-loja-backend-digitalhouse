@@ -10,9 +10,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 import lombok.Data;
 
@@ -32,9 +32,9 @@ public class Cliente {
 	private String sobrenome;
 	
 	@OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
-	private List<Telefone> telefone;
+	private List<Telefone> telefones;
 	
-	@NotNull
+	@NotBlank
 	@Column
 	private String cpf;
 	
@@ -47,9 +47,8 @@ public class Cliente {
 	
 	@Embedded
 	private Endereco endereco;
-
-	public Cliente orElse(Object object) {
-		return null;
-	}
 	
+	@OneToOne
+	private Imagem foto;
+
 }

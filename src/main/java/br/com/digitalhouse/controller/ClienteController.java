@@ -3,8 +3,6 @@ package br.com.digitalhouse.controller;
 import java.util.List;
 import java.util.Optional;
 
-import javax.validation.Valid;
-
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,84 +17,101 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.digitalhouse.controller.openapi.ClienteControllerOpenAPI;
 import br.com.digitalhouse.dto.ClienteDTO;
+import br.com.digitalhouse.dto.ClienteResumoDTO;
 import br.com.digitalhouse.model.Cliente;
 import br.com.digitalhouse.model.Telefone;
 import br.com.digitalhouse.request.ClienteRequest;
+import br.com.digitalhouse.security.permissoes.CheckSecurity;
 import br.com.digitalhouse.service.ClienteService;
-
 
 @CrossOrigin
 @RestController
 @RequestMapping("/cliente")
-public class ClienteController {
-	
+public class ClienteController implements ClienteControllerOpenAPI {
+
 	@Autowired
 	private ClienteService service;
-	
+
+	@Override
+	@PostMapping
+	@CheckSecurity.Cliente.PodeSalvarOuAtualizar
+	public ResponseEntity<?> salvar(@RequestBody ClienteRequest clienteRequest) {
+		try {
+			ClienteDTO clienteDTO = service.salvar(clienteRequest);
+			return ResponseEntity.status(HttpStatus.CREATED).body(clienteDTO);
+		} catch (Exception ex) {
+			return ResponseEntity.badRequest().body(ex.getMessage());
+		}
+	}
+
+	@Override
+	@GetMapping("/resumo")
+	@CheckSecurity.Cliente.PodeConsultar
+	public List<ClienteResumoDTO> listarResumo() {
+		return service.listarResumo();
+	}
+
+	@Override
 	@GetMapping
-	public List<Cliente> listar() {
+	public List<ClienteDTO> listar() {
 		return service.listar();
 	}
-	
-	@GetMapping("/sobrenome/{sobrenome}")
-	public List<Cliente> retornar(@PathVariable String sobrenome) {
-		return service.retornar(sobrenome);
-	}
-	
+
+
+	@Override 
 	@GetMapping("/{id}")
 	public ResponseEntity<Cliente> buscar(@PathVariable Long id) {
+
 		Optional<Cliente> cliente = service.buscar(id);
-		
-		if(cliente.isPresent()) {
+
+		if (cliente.isPresent()) {
 			return ResponseEntity.ok(cliente.get());
 		}
-		
+
 		return ResponseEntity.notFound().build();
+
 	}
-	
+
+	@Override
 	@GetMapping("/{id}/telefones")
 	public List<Telefone> buscarTelefones(@PathVariable Long id) {
 		return service.buscarTelefones(id);
 	}
-	
-	@PostMapping
-	public ResponseEntity<?> salvar(@RequestBody @Valid ClienteRequest clienteRequest) {
-		
-		try {
-			ClienteDTO cliente = service.salvar(clienteRequest);
-			return ResponseEntity.status(HttpStatus.CREATED).body(cliente);
-			
-		}catch(Exception ex) {
-			return ResponseEntity.badRequest().body(ex.getMessage());
-		}
-		
-	}
-	
+
+	@Override
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Cliente> delete(@PathVariable long id) {
+	@CheckSecurity.Cliente.PodeExcluir
+	public ResponseEntity<Cliente> excluir(@PathVariable Long id) {
 		try {
 			service.excluir(id);
 			return ResponseEntity.noContent().build();
-			
+
 		} catch (Exception e) {
 			return ResponseEntity.notFound().build();
 		}
+
+//		} catch (Exception e) {
+//			return ResponseEntity.status(HttpStatus.CONFLICT).build();
+//		}
 	}
-	
+
+	@Override
 	@PutMapping("/{id}")
-	public ResponseEntity<?> atualizar(@RequestBody @Valid Cliente cliente, @PathVariable Long id) {
-		
+	@CheckSecurity.Cliente.PodeSalvarOuAtualizar
+	public ResponseEntity<?> atualizar(@RequestBody Cliente cliente, @PathVariable Long id) {
+
 		Cliente clienteAtual = service.buscar(id).orElse(null);
-		
-		if(clienteAtual != null) {
+
+		if (clienteAtual != null) {
 			BeanUtils.copyProperties(cliente, clienteAtual, "id");
-			
+
 			service.atualizar(clienteAtual);
 			return ResponseEntity.ok(clienteAtual);
 		}
-		
+
 		return ResponseEntity.notFound().build();
 	}
-	
+
 }

@@ -10,11 +10,25 @@ import br.com.digitalhouse.model.Cliente;
 import br.com.digitalhouse.model.Telefone;
 
 @Repository
-public interface ClienteRepository extends JpaRepository<Cliente, Long> {
+public interface ClienteRepository extends JpaRepository<Cliente, Long>{
 
-	@Query("from Cliente where sobrenome like :sobrenome%")
-	List<Cliente> findBySobrenome(String sobrenome);
-
-	@Query("select telefone from Cliente c where c.id = :id")
+//	@Query("from Cliente where sobrenome like :sobrenome%")
+//	List<Cliente> findBySobrenome(String sobrenome);
+//
+	@Query("select telefones from Cliente c where c.id = :id")
 	List<Telefone> buscarTelefonesPorId(Long id);
+
+//	@Query("from Cliente where sobrenome like :sobrenome%")
+//	List<Cliente> buscarPeloSobrenome(String sobrenome);
+//	
+//	
+	
+//	@Query("from Cliente where nome like :nome")
+//	List<Cliente> buscarPorNome(String nome);
+//
+//	List<Cliente> findByNome(String nome);
+//
+//	@Query("from Cliente where dataNasc <= :data")
+//	List<Cliente> buscarMaiores(LocalDate data);
+	
 }
