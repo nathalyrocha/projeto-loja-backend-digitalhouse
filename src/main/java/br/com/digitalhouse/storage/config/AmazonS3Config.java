@@ -17,7 +17,7 @@ public class AmazonS3Config {
 	
 	@Bean
 	public AmazonS3 amazonS3() {
-		var credentials = new BasicAWSCredentials(
+		BasicAWSCredentials credentials = new BasicAWSCredentials(
 				storageProperties.getIdChaveAcesso(),
 				storageProperties.getChaveAcessoSecreta());
 		
