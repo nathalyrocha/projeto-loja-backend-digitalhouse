@@ -8,7 +8,9 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -21,27 +23,40 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-	
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
-	
-	@Bean
-	@Override
-	protected AuthenticationManager authenticationManager() throws Exception {
-		return super.authenticationManager();
-	}
-	
+
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
+//		http
+//		.csrf().disable()
+//		.authorizeRequests()
+//			.antMatchers(HttpMethod.POST, "/cliente/**").hasAuthority("DH01")
+//			.antMatchers(HttpMethod.PUT, "/cliente/**").hasAuthority("DH01")
+//			.antMatchers(HttpMethod.GET, "/cliente/**").authenticated()
+//			.antMatchers("/cliente/**").permitAll()
+//			.anyRequest().authenticated()
+//        //...		
 		http
+			.authorizeRequests()
+				.antMatchers("/cliente", "/cliente/**").permitAll()
+			.and()
 			.csrf().disable()
 			.cors().and()
 			.oauth2ResourceServer().jwt()
 				.jwtAuthenticationConverter(jwtAuthenticationConverter());
 	}
+	
+//	@Override
+//	public void configure(WebSecurity web) throws Exception {
+//		
+//	    web.ignoring().antMatchers("/cliente");
+//	    web.ignoring().antMatchers("/estado/getAllEstado");
+//	    web.ignoring().antMatchers("/imagem/getAllImagem");
+//	    web.ignoring().antMatchers("/estado/{id}/cidades");
+//	    
+//	}
+
 	
 	@Bean
 	public JwtDecoder jwtDecoder() {
@@ -67,4 +82,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		return jwtAuthenticationConverter;
 	}
 	
+	@Bean
+	@Override
+	protected AuthenticationManager authenticationManager() throws Exception {
+		return super.authenticationManager();
+	}
+	
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+
 }

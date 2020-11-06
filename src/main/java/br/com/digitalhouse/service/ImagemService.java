@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 import br.com.digitalhouse.dto.ImagemDTO;
 import br.com.digitalhouse.exception.ImagemNaoEncontradaException;
 import br.com.digitalhouse.mapper.ImagemMapper;
@@ -18,13 +19,11 @@ import br.com.digitalhouse.request.ImagemRequest;
 
 @Service
 public class ImagemService {
-	
+
 	@Autowired
 	private ImagemRepository repository;
-	
 	@Autowired
-	private ImagemMapper mapper;
-	
+	private ImagemMapper mapper;	
 	@Autowired
 	private S3FotoStorageService s3FotoStorageService;
 	
@@ -33,20 +32,19 @@ public class ImagemService {
 		
 		MultipartFile arquivo = imagemRequest.getImagem();
 		
-		String nomeArquivo = UUID.randomUUID().toString()
+		String nomeArquivo = UUID.randomUUID().toString() 
 				+ "_" + arquivo.getOriginalFilename();	
 		
 		Imagem imagem = mapper.requestToModel(imagemRequest);
 		
-		imagem.setNomeArquivoCompleto(nomeArquivo);
 		imagem.setNomeArquivo(arquivo.getOriginalFilename());
+		imagem.setNomeArquivoCompleto(nomeArquivo);		
 		imagem.setContentType(arquivo.getContentType());
 		imagem.setTamanho(arquivo.getSize());		
 	  	
-		URL url = s3FotoStorageService.armazenar(imagemRequest.getImagem(), nomeArquivo);
-		
+		URL url = s3FotoStorageService.armazenar(arquivo, nomeArquivo);
 	  	imagem.setUrl(url);
-	   
+	    
 	  	return mapper.modelToDTO( repository.save(imagem) );	
 	}
 
@@ -54,16 +52,16 @@ public class ImagemService {
 	public void excluir(Long id) {
 		
 		Imagem imagem = repository.findById(id).get();
+		
 		s3FotoStorageService.remover(imagem.getNomeArquivoCompleto());
 		
 		try {
-			repository.deleteById(id);;
+			repository.deleteById(id);
 			repository.flush();
-			
+		
 		} catch (EmptyResultDataAccessException e) {
 			throw new ImagemNaoEncontradaException(id);
-		}
+		};
 		
 	}
-	
 }

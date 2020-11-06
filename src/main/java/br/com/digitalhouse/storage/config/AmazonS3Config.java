@@ -18,7 +18,7 @@ public class AmazonS3Config {
 	@Bean
 	public AmazonS3 amazonS3() {
 		BasicAWSCredentials credentials = new BasicAWSCredentials(
-				storageProperties.getIdChaveAcesso(),
+				storageProperties.getIdChaveAcesso(), 
 				storageProperties.getChaveAcessoSecreta());
 		
 		return AmazonS3ClientBuilder.standard()
@@ -26,4 +26,5 @@ public class AmazonS3Config {
 				.withRegion(storageProperties.getRegiao())
 				.build();
 	}
+	
 }

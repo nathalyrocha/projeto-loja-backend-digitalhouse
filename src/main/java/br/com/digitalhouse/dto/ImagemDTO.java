@@ -1,6 +1,7 @@
 package br.com.digitalhouse.dto;
 
 import java.net.URL;
+
 import lombok.Data;
 
 @Data

@@ -23,8 +23,9 @@ public class Cidade {
 	@Column(nullable = false)
 	private String nome;
 	
+	//@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "estado_id", nullable = false)
 	private Estado estado;
-	
+
 }

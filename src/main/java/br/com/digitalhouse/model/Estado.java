@@ -13,11 +13,12 @@ import lombok.Data;
 @Entity
 @Table(name = "estado")
 public class Estado {
-
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
 	@Column(nullable = false)
 	private String nome;
+
 }

@@ -1,5 +1,6 @@
 package br.com.digitalhouse.service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -8,12 +9,16 @@ import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import br.com.digitalhouse.dto.ClienteDTO;
 import br.com.digitalhouse.dto.ClienteResumoDTO;
+import br.com.digitalhouse.email.EnvioEmailService;
+import br.com.digitalhouse.email.Mensagem;
 import br.com.digitalhouse.exception.ClienteNaoEncontradoException;
 import br.com.digitalhouse.mapper.ClienteMapper;
+import br.com.digitalhouse.model.Cidade;
 import br.com.digitalhouse.model.Cliente;
 import br.com.digitalhouse.model.Telefone;
 import br.com.digitalhouse.repository.CidadeRepository;
@@ -33,21 +38,36 @@ public class ClienteService {
 	private EstadoRepository estadoRepository;
 	@Autowired
 	private ClienteMapper mapper;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+	@Autowired
+	private EnvioEmailService envioEmail;
 
 	@Transactional
 	public ClienteDTO salvar(ClienteRequest clienteRequest) {
 		
-		Cliente cliente = mapper.requestToModel(clienteRequest);
+//		Usuario usuario = new Usuario();
+//		
+//		usuario.setSenha(passwordEncoder.encode(clienteRequest.getSenha()));
+//		
+//		Grupo grupo = grupoRepository.findById((long)1).get();		
+//		usuario.setGrupos((Set<Grupo>) Arrays.asList(grupo));
 		
+		
+		Cliente cliente = mapper.requestToModel(clienteRequest);
+		cliente.setDataNasc(LocalDate.now());
+		
+				
 		if(cliente.getEndereco().getCidade().getId() == null) {
 			estadoRepository.save(cliente.getEndereco().getCidade().getEstado());
 		    cidadeRepository.save(cliente.getEndereco().getCidade());
 		}
     
 	    cliente.getTelefones().stream().
-		forEach(telefone -> telefone.setCliente(cliente));	
+		forEach(telefone -> telefone.setCliente(cliente));	 
 	    
-	    return mapper.modelToDTO(repository.save(cliente));		
+	    
+	    return mapper.modelToDTO( repository.save(cliente) );		
 	}
 
 	@Transactional
@@ -55,7 +75,20 @@ public class ClienteService {
 		
 	    cliente.getTelefones().stream().
 		forEach(telefone -> telefone.setCliente(cliente));	
-				
+	    
+	    Cidade cidade = cidadeRepository.findById(cliente.getEndereco().getCidade().getId()).get();
+	   
+	    Mensagem mensagem = Mensagem.builder()
+				.assunto(cliente.getNome() + " - Cliente atualizado")
+				.corpo("cliente-atualizado.html")
+				.variavel("cliente", cliente)
+				.variavel("cidade", cidade)
+				//.variavel("estado", cidade.getEstado().getNome())
+				.destinatario(cliente.getEmail())
+				.build();
+		
+		envioEmail.enviar(mensagem);
+	    
 		repository.save(cliente);		
 	}
 	
@@ -97,4 +130,5 @@ public class ClienteService {
 				.collect(Collectors.toList());
 
 	}
+	
 }

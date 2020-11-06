@@ -24,6 +24,7 @@ import br.com.digitalhouse.model.Cliente;
 import br.com.digitalhouse.model.Telefone;
 import br.com.digitalhouse.request.ClienteRequest;
 import br.com.digitalhouse.security.permissoes.CheckSecurity;
+import br.com.digitalhouse.security.permissoes.DigitalSecurity;
 import br.com.digitalhouse.service.ClienteService;
 
 @CrossOrigin
@@ -34,9 +35,12 @@ public class ClienteController implements ClienteControllerOpenAPI {
 	@Autowired
 	private ClienteService service;
 
+	@Autowired
+	private DigitalSecurity digitalSecurity;
+
+	@CheckSecurity.Cliente.PodeSalvarOuAtualizar
 	@Override
 	@PostMapping
-	@CheckSecurity.Cliente.PodeSalvarOuAtualizar
 	public ResponseEntity<?> salvar(@RequestBody ClienteRequest clienteRequest) {
 		try {
 			ClienteDTO clienteDTO = service.salvar(clienteRequest);
@@ -46,43 +50,71 @@ public class ClienteController implements ClienteControllerOpenAPI {
 		}
 	}
 
+	@CheckSecurity.Cliente.PodeConsultar
 	@Override
 	@GetMapping("/resumo")
-	@CheckSecurity.Cliente.PodeConsultar
 	public List<ClienteResumoDTO> listarResumo() {
 		return service.listarResumo();
 	}
 
+	//@CheckSecurity.Cliente.PodeConsultar
 	@Override
 	@GetMapping
 	public List<ClienteDTO> listar() {
 		return service.listar();
 	}
 
-
-	@Override 
+	@CheckSecurity.Cliente.PodeConsultar
+	@Override
 	@GetMapping("/{id}")
 	public ResponseEntity<Cliente> buscar(@PathVariable Long id) {
 
-		Optional<Cliente> cliente = service.buscar(id);
+//		Long clienteId = digitalSecurity.getUsuarioId();		
+//
+//		if (clienteId == id) {
+//			
+			Optional<Cliente> cliente = service.buscar(id);
 
-		if (cliente.isPresent()) {
-			return ResponseEntity.ok(cliente.get());
-		}
+			if (cliente.isPresent()) {			
+				return ResponseEntity.ok(cliente.get());
+			}
+		
+	//	}
+		
+		return ResponseEntity.notFound().build();
 
+	}
+	
+	@CheckSecurity.Cliente.PodeConsultar
+	@GetMapping("/usuario")
+	public ResponseEntity<Cliente> buscarPorIdnoToken() {
+
+		Long id = digitalSecurity.getUsuarioId();		
+//
+//		if (clienteId == id) {
+//			
+			Optional<Cliente> cliente = service.buscar(id);
+
+			if (cliente.isPresent()) {			
+				return ResponseEntity.ok(cliente.get());
+			}
+		
+	//	}
+		
 		return ResponseEntity.notFound().build();
 
 	}
 
+	@CheckSecurity.Cliente.PodeConsultar
 	@Override
 	@GetMapping("/{id}/telefones")
 	public List<Telefone> buscarTelefones(@PathVariable Long id) {
 		return service.buscarTelefones(id);
 	}
 
+	@CheckSecurity.Cliente.PodeExcluir
 	@Override
 	@DeleteMapping("/{id}")
-	@CheckSecurity.Cliente.PodeExcluir
 	public ResponseEntity<Cliente> excluir(@PathVariable Long id) {
 		try {
 			service.excluir(id);
@@ -97,9 +129,9 @@ public class ClienteController implements ClienteControllerOpenAPI {
 //		}
 	}
 
+	@CheckSecurity.Cliente.PodeSalvarOuAtualizar
 	@Override
 	@PutMapping("/{id}")
-	@CheckSecurity.Cliente.PodeSalvarOuAtualizar
 	public ResponseEntity<?> atualizar(@RequestBody Cliente cliente, @PathVariable Long id) {
 
 		Cliente clienteAtual = service.buscar(id).orElse(null);

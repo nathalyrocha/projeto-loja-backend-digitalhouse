@@ -1,6 +1,7 @@
 package br.com.digitalhouse.controller;
 
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import br.com.digitalhouse.controller.openapi.EstadoControllerOpenAPI;
 import br.com.digitalhouse.model.Cidade;
 import br.com.digitalhouse.model.Estado;
@@ -18,8 +20,8 @@ import br.com.digitalhouse.security.permissoes.CheckSecurity;
 @CrossOrigin
 @RestController
 @RequestMapping("/estado")
-public class EstadoController implements EstadoControllerOpenAPI {
-	
+public class EstadoController implements EstadoControllerOpenAPI{
+
 	@Autowired
 	private EstadoRepository repository;
 	
@@ -28,15 +30,15 @@ public class EstadoController implements EstadoControllerOpenAPI {
 		repository.save(estado);
 	}
 	
-	@CheckSecurity.Estado.ListarEstados
+	//@CheckSecurity.Estado.ListarEstados
 	@GetMapping
-	public List<Estado> listar() {
+	public List<Estado> listar(){
 		return repository.findAll();
 	}
 	
 	@CheckSecurity.Estado.ListarCidadesPorEstado
 	@GetMapping("/{id}/cidades")
-	public List<Cidade> listarCidadesPorEstado(@PathVariable Long id) {
+	public List<Cidade> listarCidadesPorEstado(@PathVariable Long id){
 		return repository.buscarCidades(id);
 	}
 }

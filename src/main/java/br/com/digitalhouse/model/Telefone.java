@@ -15,22 +15,22 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table
+@Table(name="telefone")
 public class Telefone {
-
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private Long id;	
 	
-	@Column
-	private String telefone;
+	@Column(nullable = false)
+	private String telefone;	
 	
 	@Column
 	private String tipo;
 	
-	@JsonIgnore
+	@JsonIgnore	
 	@ManyToOne
-	@JoinColumn(name = "cliente_id")
-	private Cliente cliente;
+	@JoinColumn(name="cliente_id", nullable = false) 
+	private Cliente cliente;	
 	
 }
